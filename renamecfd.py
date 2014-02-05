@@ -43,6 +43,7 @@
 
 import sys
 import os
+import glob
 from optparse import OptionParser
 from xml.dom import minidom
 
@@ -139,7 +140,15 @@ def main(argv):
     else:
         verbose = False
 
-    for item in args:
+    # Se obtiene la lista de archivos
+    if len(args) == 1 and "*" not in args[0]:
+        files = args
+    elif len(args) == 1 and "*" in args[0]:
+        files = glob.glob(args[0])
+    else:
+        files = args
+        
+    for item in files:
         nomFileXml = item
         if not os.path.isfile(nomFileXml):
             print "El archivo "+nomFileXml+" no existe."
