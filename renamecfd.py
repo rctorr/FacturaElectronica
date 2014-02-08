@@ -11,8 +11,9 @@
 # Descripción
 # Este script ayuda a leer un CFD para despues renombrar el archivo
 # de la siguiente manera:
-#    Fecha_RFCemisor_serie_folio_subtotal_iva_total.xml
+#    _RFCReceptor_Fecha_RFCemisor_serie_folio_subtotal_iva_total_.xml
 #
+# RFCReceptor: RFC de quien recibe el cfd/cfdi
 # Fecha: Fecha en que se generó el comprobante
 # RFCemisor: RFC de quien emite el cfd/cfdi
 # Serie y Folio: Numero de Serie y folio de la factura
@@ -79,9 +80,11 @@ class XmlCFD(object):
 
             if version == "1.0" or version == "2.0" or version == "2.2": # CFD
                 emisor = comprobante.getElementsByTagName('Emisor')
+                receptor = comprobante.getElementsByTagName('Receptor')
                 impuestos = comprobante.getElementsByTagName('Impuestos')
             elif version == "3.2" or version == "3.0": # CFDi
                 emisor = comprobante.getElementsByTagName('cfdi:Emisor')
+                receptor = comprobante.getElementsByTagName('cfdi:Receptor')
                 impuestos = comprobante.getElementsByTagName('cfdi:Impuestos')
             else:
                 print
@@ -91,11 +94,12 @@ class XmlCFD(object):
                 
             self.atributos['rfc'] = emisor[0].getAttribute('rfc')
             self.atributos['nombre'] = emisor[0].getAttribute('nombre')
+            self.atributos['receptorRfc'] = receptor[0].getAttribute('rfc')
             self.atributos['iva'] = impuestos[0].getAttribute('totalImpuestosTrasladados').rjust(10,'0')
         
         return self.atributos
 
-    def rename(self, verbose):
+    def rename(self, verbose, receptorrfc):
         """ Renombra el archivo xml de la forma:
                 Fecha_RFCemisor_serie_folio_subtotal_iva_total.xml
             
@@ -106,14 +110,16 @@ class XmlCFD(object):
         
         nomFileXmlNew = os.path.dirname(self.nomFileXml)
         nomFileXmlNew += os.sep if len(nomFileXmlNew) > 0 else ""
-        nomFileXmlNew += self.atributos['fecha']
+        if receptorrfc: # Se adiciona sólo si la opción -r está incluida
+             nomFileXmlNew += '_'+self.atributos['receptorRfc']
+        nomFileXmlNew += '_'+self.atributos['fecha']
         nomFileXmlNew += '_'+self.atributos['rfc']
         nomFileXmlNew += '_'+self.atributos['serie']
         nomFileXmlNew += '_'+self.atributos['folio']
         nomFileXmlNew += '_'+self.atributos['subTotal']
         nomFileXmlNew += '_'+self.atributos['iva']
         nomFileXmlNew += '_'+self.atributos['total']
-        nomFileXmlNew += '.xml'
+        nomFileXmlNew += '_.xml'
             
         os.rename(self.nomFileXml, nomFileXmlNew)
         if verbose:
@@ -130,15 +136,13 @@ def main(argv):
          help=u"muestra este mensaje de ayuda y termina")
     parser.add_option("-v", "--verbose", action="store_true",
          help=u"Va mostrando la lista de los archivos modificados")
+    parser.add_option("-r", "--receptorrfc", action="store_true",
+         help=u"Adiciona el rfc del receptor al inicio de cada nombre")
     (options, args) = parser.parse_args()
 
     if len(args) == 0:
         parser.print_help()
         sys.exit(0)
-    if options.verbose:
-        verbose = True
-    else:
-        verbose = False
 
     # Se obtiene la lista de archivos
     if len(args) == 1 and "*" not in args[0]:
@@ -154,7 +158,7 @@ def main(argv):
             print "El archivo "+nomFileXml+" no existe."
         else:
             xmlcfd = XmlCFD(nomFileXml)
-            xmlcfd.rename(verbose)
+            xmlcfd.rename(options.verbose, options.receptorrfc)
 
 if __name__ == "__main__":
   main(sys.argv[1:])
