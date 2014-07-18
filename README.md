@@ -114,8 +114,9 @@ archivo2.xml => fecha2_rfc2_etc2.xml
 ...
 $
 ```
-Convierte todos los archivos con extensión xml en la carpeta actual y con la opción
--v muestra la lista de los archivos que ha convertido.
+Convierte todos los archivos con extensión xml en la carpeta actual
+
+Con la opción -v muestra la lista de los archivos que ha convertido.
 
 ```bash
 $ python renamecfd.py -r -v *.xml
@@ -124,9 +125,12 @@ archivo2.xml => rfcreceptor2_fecha2_rfc2_etc2.xml
 ...
 $
 ```
-Convierte todos los archivos con extensión xml en la carpeta actual, con la opción
--v muestra la lista de los archivos que ha convertido y con la opción -r adiciona al
-inicio del nombre el rfc del receptor.
+Convierte todos los archivos con extensión xml en la carpeta actual,
+
+con la opción -v muestra la lista de los archivos que ha convertido.
+
+con la opción -r adiciona al inicio del nombre el rfc del receptor.
+
 
 ```bash
 $ python renamecfd.py -r -d -o reporte.csv *.xml
@@ -135,10 +139,13 @@ archivo2.xml => rfcreceptor2_fecha2_rfc2_etc2.xml
 ...
 $
 ```
-Convierte todos los archivos con extensión xml en la carpeta actual, con la opción
--r adiciona al inicio del nombre el rfc del receptor.
--d adiciona importe de descuento despues del subtotal.
--o reporte.csv genera archivo CSV
+Convierte todos los archivos con extensión xml en la carpeta actual,
+
+Con la opción -r adiciona al inicio del nombre el rfc del receptor.
+
+Con la opción -d adiciona importe de descuento despues del subtotal.
+
+Con la opción -o reporte.csv genera archivo CSV.
 
 ```
 rfcreceptor,fecha,rfc,etc
