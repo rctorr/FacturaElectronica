@@ -47,7 +47,6 @@ Donde:
    - Se agrega el campo hora
    - Se valida que el archivo final no exista.
    - Si existe un pdf con el mismo nombre que el XML se renombran ambos archivos.
-   -
 
  17-01-2014
  - Ahora permite indicar archivos con algún path distinto a donde está el
