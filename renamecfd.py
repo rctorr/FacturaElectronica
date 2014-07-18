@@ -11,13 +11,16 @@
 # Descripción
 # Este script ayuda a leer un CFD para despues renombrar el archivo
 # de la siguiente manera:
-#    _RFCReceptor_Fecha_RFCemisor_serie_folio_subtotal_iva_total_.xml
+#    _RFCReceptor_Fecha_RFCemisor_serie_folio_subtotal_iva_total_descuento_tipoComprobante_version.xml
 #
-# RFCReceptor: RFC de quien recibe el cfd/cfdi
+# RFCReceptor: RFC de quien recibe el cfd/cfdi (opcional)
 # Fecha: Fecha en que se generó el comprobante
 # RFCemisor: RFC de quien emite el cfd/cfdi
 # Serie y Folio: Numero de Serie y folio de la factura
 # Subtotal, iva, total: Importes de la factura.
+# Descuento: Monto de descuento (Opcional)
+# Tipo de comprobante: Ingreso/Egreso
+# Version: Version del CFDI
 #
 # El nombre del xml se proporciona desde la línea de comandos, de tal forma que
 # se puede usar en algún otro script para automatizar el proceso.
@@ -27,6 +30,12 @@
 #   - Separar los tipos de impuestos (IVA e ISR).
 #
 ###############################################################################
+#
+# 17-07-2014 (@pixelead0)
+# - FIXED:
+#   - Se arregla el IVA, en algunos XML el atributo 'totalImpuestosTrasladados' está vacío.
+# - IMPLEMENT FEATURE:
+#   - Se agrega columna de 'DESCUENTO', para las compras que tienen descuentos, por ejemplo una compra en el super con promoción del 2x1.
 #
 # 25-02-2014 (@pixelead0)
 # - FIXES:
@@ -115,6 +124,13 @@ class XmlCFD(object):
 
             # self.atributos['fecha'] += compAtrib['fecha'][11:2]
             self.atributos['total'] = signo+compAtrib['total']
+
+            # Si la compra tiene descuento, agrega el atributo de descuento.
+            if  'descuento' in compAtrib:
+                self.atributos['descuento'] = "-"+compAtrib['descuento']
+            else:
+                self.atributos['descuento'] = "0"
+
             self.atributos['subTotal'] = signo+compAtrib['subTotal']
             version = compAtrib['version']
 
@@ -126,23 +142,31 @@ class XmlCFD(object):
                 emisor = comprobante.getElementsByTagName('cfdi:Emisor')
                 receptor = comprobante.getElementsByTagName('cfdi:Receptor')
                 impuestos = comprobante.getElementsByTagName('cfdi:Impuestos')
+                impuestos2 = comprobante.getElementsByTagName('cfdi:Traslado')
+
                 # complemento = comprobante.getElementsByTagName('cfdi:Complemento')
             else:
                 print
                 print "El archivo xml no es una versión válida de cfd!"
                 print
-                sys.exit(1)
 
             self.atributos['rfc'] = emisor[0].getAttribute('rfc')
             self.atributos['nombre'] = emisor[0].getAttribute('nombre')
             self.atributos['receptorRfc'] = receptor[0].getAttribute('rfc')
-            self.atributos['iva'] = signo+impuestos[0].getAttribute('totalImpuestosTrasladados')
+
+            if impuestos[0].getAttribute('totalImpuestosTrasladados')=="":
+                try:
+                    self.atributos['iva'] = signo+impuestos2[0].getAttribute('importe')
+                except:
+                    self.atributos['iva'] = '0'
+            else:
+                self.atributos['iva'] = signo+impuestos[0].getAttribute('totalImpuestosTrasladados')
             self.atributos['version'] = version
 
 
         return self.atributos
 
-    def rename(self, verbose, receptorrfc):
+    def rename(self, verbose, receptorrfc, descuentos):
         """ Renombra el archivo xml de la forma:
                 Fecha_RFCemisor_serie_folio_subtotal_iva_total.xml
 
@@ -174,6 +198,9 @@ class XmlCFD(object):
         nomFileXmlNew += '_'+self.atributos['subTotal']
         nomFileXmlNew += '_'+self.atributos['iva']
         nomFileXmlNew += '_'+self.atributos['total']
+
+        if descuentos: # Se adiciona sólo si la opción -d está incluida
+            nomFileXmlNew += '_'+self.atributos['descuento']
         nomFileXmlNew += '_'+self.atributos['tipoDeComprobante']
         nomFileXmlNew += '_'+self.atributos['version']
 
@@ -207,6 +234,8 @@ def main(argv):
          help=u"Va mostrando la lista de los archivos modificados")
     parser.add_option("-r", "--receptorrfc", action="store_true",
          help=u"Adiciona el rfc del receptor al inicio de cada nombre")
+    parser.add_option("-d", "--descuentos", action="store_true",
+         help=u"Adiciona el monto de descuento del comprobante")
     (options, args) = parser.parse_args()
 
     if len(args) == 0:
@@ -227,7 +256,7 @@ def main(argv):
             print "El archivo "+nomFileXml+" no existe."
         else:
             xmlcfd = XmlCFD(nomFileXml)
-            xmlcfd.rename(options.verbose, options.receptorrfc)
+            xmlcfd.rename(options.verbose, options.receptorrfc, options.descuentos)
 
 if __name__ == "__main__":
   main(sys.argv[1:])
