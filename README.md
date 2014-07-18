@@ -29,7 +29,7 @@ Donde:
 
 
 
-### TODO:
+### TO DO:
   * Separar los tipos de impuestos (IVA e ISR).
 
 ### CHANGE LOG
@@ -38,7 +38,8 @@ Donde:
  - FIXED:
    - Se arregla el IVA, en algunos XML el atributo 'totalImpuestosTrasladados' está vacío.
  - IMPLEMENT FEATURE:
-   - Se agrega columna de 'DESCUENTO', para las compras que tienen descuentos, por ejemplo una compra en el super con promoción del 2x1.
+   - Se agrega parametro opcional para mostrar la columna de 'DESCUENTO', para las compras que tienen descuentos, por ejemplo una compra en el super con promoción del 2x1.
+   - Se agrega parametro opcional para exportar resultados en un archivo .csv
 
  25-02-2014 (@pixelead0)
  - FIXES:
@@ -88,6 +89,8 @@ Options:
   -v, --verbose      Va mostrando la lista de los archivos modificados
   -r, --receptorrfc  Adiciona el rfc del receptor al inicio de cada nombre
   -d, --descuentos   Adiciona el monto de descuento del comprobante
+  -o archivoSalida.csv, --output=archivoSalida.csv
+                        Guarda reporte en archivo csv
 ```
 Muestra la ayuda
 
@@ -125,3 +128,21 @@ Convierte todos los archivos con extensión xml en la carpeta actual, con la opc
 -v muestra la lista de los archivos que ha convertido y con la opción -r adiciona al
 inicio del nombre el rfc del receptor.
 
+```bash
+$ python renamecfd.py -r -d -o reporte.csv *.xml
+archivo1.xml => rfcreceptor_fecha_rfc_etc.xml
+archivo2.xml => rfcreceptor2_fecha2_rfc2_etc2.xml
+...
+$
+```
+Convierte todos los archivos con extensión xml en la carpeta actual, con la opción
+-r adiciona al inicio del nombre el rfc del receptor.
+-d adiciona importe de descuento despues del subtotal.
+-o reporte.csv genera archivo CSV
+
+```
+rfcreceptor,fecha,rfc,etc
+rfcreceptor2,fecha2,rfc2,etc2
+...
+...
+```

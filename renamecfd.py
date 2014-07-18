@@ -35,7 +35,8 @@
 # - FIXED:
 #   - Se arregla el IVA, en algunos XML el atributo 'totalImpuestosTrasladados' está vacío.
 # - IMPLEMENT FEATURE:
-#   - Se agrega columna de 'DESCUENTO', para las compras que tienen descuentos, por ejemplo una compra en el super con promoción del 2x1.
+#   - Se agrega parametro opcional para mostrar la columna de 'DESCUENTO', para las compras que tienen descuentos, por ejemplo una compra en el super con promoción del 2x1.
+#   - Se agrega parametro opcional para exportar resultados en un archivo .csv
 #
 # 25-02-2014 (@pixelead0)
 # - FIXES:
@@ -67,6 +68,7 @@
 import sys
 import os
 import glob
+import csv
 from optparse import OptionParser
 from xml.dom import minidom
 
@@ -166,7 +168,7 @@ class XmlCFD(object):
 
         return self.atributos
 
-    def rename(self, verbose, receptorrfc, descuentos):
+    def rename(self, options):
         """ Renombra el archivo xml de la forma:
                 Fecha_RFCemisor_serie_folio_subtotal_iva_total.xml
 
@@ -185,7 +187,7 @@ class XmlCFD(object):
         nomFileXmlOld = nomFileOld[0]+'.xml'
 
         nomFileXmlNew += os.sep if len(nomFileXmlNew) > 0 else ""
-        if receptorrfc: # Se adiciona sólo si la opción -r está incluida
+        if options.receptorrfc: # Se adiciona sólo si la opción -r está incluida
              nomFileXmlNew += '_'+self.atributos['receptorRfc']
         nomFileXmlNew += '_'+self.atributos['fecha']
         nomFileXmlNew += '_'+self.atributos['hora']
@@ -199,12 +201,13 @@ class XmlCFD(object):
         nomFileXmlNew += '_'+self.atributos['iva']
         nomFileXmlNew += '_'+self.atributos['total']
 
-        if descuentos: # Se adiciona sólo si la opción -d está incluida
+        if options.descuentos: # Se adiciona sólo si la opción -d está incluida
             nomFileXmlNew += '_'+self.atributos['descuento']
         nomFileXmlNew += '_'+self.atributos['tipoDeComprobante']
         nomFileXmlNew += '_'+self.atributos['version']
 
         #Los nuevos nombres de archivos para pdf y xml
+        lineCSV  = nomFileXmlNew
         nomFilePdfNew  = nomFileXmlNew+'_.pdf'
         nomFileXmlNew += '_.xml'
 
@@ -218,24 +221,51 @@ class XmlCFD(object):
             if os.path.isfile(nomFilePdfOld):
                 os.rename(nomFilePdfOld, nomFilePdfNew)
 
-        if verbose:
+        if options.verbose:
             print self.nomFileXml+" => "+nomFileXmlNew
 
+        # Guarda resultados en un archivo CSV para visualizarlo en una hoja de calculo
+        if options.archivoSalida:
+            f = open(options.archivoSalida,'a')
+            lineCSV = lineCSV.replace("_",",")
+            f.write(lineCSV+"\n") # python will convert \n to os.linesep
+            f.close() # you can omit in most cases as the destructor will call if
+
         return nomFileXmlNew
+
+    def createCSV(self):
+        """ Genera archivo en formato CSV
+            Regresa el nuevo nombre del archivo
+        """
+        myfile = open('nuevo.csv', 'wb')
+        wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+        wr.writerow(self.atributos)
+
+        return
+
+
 
 def main(argv):
 
     usage = "%prog [opciones] archivocfd.xml|*.xml"
     add_help_option = False
     parser = OptionParser(usage=usage, add_help_option=add_help_option)
-    parser.add_option("-h", "--help", action="help",
-         help=u"muestra este mensaje de ayuda y termina")
-    parser.add_option("-v", "--verbose", action="store_true",
-         help=u"Va mostrando la lista de los archivos modificados")
-    parser.add_option("-r", "--receptorrfc", action="store_true",
-         help=u"Adiciona el rfc del receptor al inicio de cada nombre")
+
     parser.add_option("-d", "--descuentos", action="store_true",
          help=u"Adiciona el monto de descuento del comprobante")
+
+    parser.add_option("-h", "--help", action="help",
+         help=u"muestra este mensaje de ayuda y termina")
+
+    parser.add_option("-o", "--output", dest="archivoSalida",
+         help=u"Guarda reporte en archivo CSV", metavar="archivoSalida.csv")
+
+    parser.add_option("-r", "--receptorrfc", action="store_true",
+         help=u"Adiciona el rfc del receptor al inicio de cada nombre")
+
+    parser.add_option("-v", "--verbose", action="store_true",
+         help=u"Va mostrando la lista de los archivos modificados")
+
     (options, args) = parser.parse_args()
 
     if len(args) == 0:
@@ -250,13 +280,18 @@ def main(argv):
     else:
         files = args
 
+    if options.archivoSalida and os.path.isfile(options.archivoSalida):
+        os.remove(options.archivoSalida)
+
+
     for item in files:
         nomFileXml = item
         if not os.path.isfile(nomFileXml):
             print "El archivo "+nomFileXml+" no existe."
         else:
             xmlcfd = XmlCFD(nomFileXml)
-            xmlcfd.rename(options.verbose, options.receptorrfc, options.descuentos)
+            xmlcfd.rename(options)
+            #xmlcfd.createCSV()
 
 if __name__ == "__main__":
   main(sys.argv[1:])
