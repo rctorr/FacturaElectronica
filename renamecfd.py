@@ -31,7 +31,7 @@
 #
 ###############################################################################
 #
-# 12-08-2014 (@rctorr)
+# 12-08-2015 (@rctorr)
 # - Agregando campo del UUID por solicitud de usuarios
 # 
 # 17-07-2014 (@pixelead0)

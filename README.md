@@ -34,6 +34,9 @@ Donde:
 
 ### CHANGE LOG
 
+ 12-08-2015 (@rctorr)
+ - Agregando campo del UUID por solicitud de usuarios
+ 
  17-07-2014 (@pixelead0)
  - FIXED:
    - Se arregla el IVA, en algunos XML el atributo 'totalImpuestosTrasladados' está vacío.
