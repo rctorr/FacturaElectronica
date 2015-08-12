@@ -31,6 +31,9 @@
 #
 ###############################################################################
 #
+# 12-08-2014 (@rctorr)
+# - Agregando campo del UUID por solicitud de usuarios
+# 
 # 17-07-2014 (@pixelead0)
 # - FIXED:
 #   - Se arregla el IVA, en algunos XML el atributo 'totalImpuestosTrasladados' está vacío.
@@ -147,6 +150,11 @@ class XmlCFD(object):
                 impuestos2 = comprobante.getElementsByTagName('cfdi:Traslado')
 
                 # complemento = comprobante.getElementsByTagName('cfdi:Complemento')
+                
+                # Se obtiene el elementos correspondiente al timbre emitido por el PAC
+                timbre = comprobante.getElementsByTagName('tfd:TimbreFiscalDigital')
+                # Se obtiene el valor del atributo UUID
+                self.atributos['UUID'] = timbre[0].getAttribute('UUID')
             else:
                 print
                 print "El archivo xml no es una versión válida de cfd!"
@@ -205,6 +213,9 @@ class XmlCFD(object):
             nomFileXmlNew += '_'+self.atributos['descuento']
         nomFileXmlNew += '_'+self.atributos['tipoDeComprobante']
         nomFileXmlNew += '_'+self.atributos['version']
+        
+        if options.UUID: # Se adiciona sólo si la opción -U se ha usado
+            nomFileXmlNew += '_'+self.atributos['UUID']
 
         #Los nuevos nombres de archivos para pdf y xml
         lineCSV  = nomFileXmlNew
@@ -265,6 +276,9 @@ def main(argv):
 
     parser.add_option("-v", "--verbose", action="store_true",
          help=u"Va mostrando la lista de los archivos modificados")
+
+    parser.add_option("-U", "--UUID", action="store_true",
+         help=u"Adiciona el UUID del timbre fiscal digital")
 
     (options, args) = parser.parse_args()
 

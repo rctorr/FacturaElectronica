@@ -15,7 +15,7 @@ twitter: *[@pixelead0](http://www.twitter.com/pixelead0)*
 ### Descripción
 Este script lee un CFD/CFDI con nombre archivo.xml para después renombrarlo
 de la siguiente manera:
-	_RFCReceptor_Fecha_RFCemisor_serie_folio_subtotal_iva_total_descuento_tipoComprobante_version.xml
+	_RFCReceptor_Fecha_RFCemisor_serie_folio_subtotal_iva_total_descuento_tipoComprobante_version_UUID.xml
 
 Donde:
  * RFCReceptor: RFC de quien recibe el cfd/cfdi, es opcional y controlado por la opción -r
@@ -26,7 +26,7 @@ Donde:
  * Descuento: Monto de descuento , es opcional y controlado por la opción -d
  * Tipo de comprobante: Ingreso/Egreso
  * Version: Version del CFDI
-
+ * UUID: Es el folio obtenido por el timbrado (opcional con la opción -U o --UUID)
 
 
 ### TO DO:
@@ -78,6 +78,8 @@ script
 Se aceptan comodines para procesar grupos de archivos
 
 Puede leer tanto archivos xml correspondientes a CFD y CFDi
+
+Ejecutar cuando menos una ves con -h ya que se están agregando nuevas opciones.
 
 ### Ejemplos
 ```bash
@@ -153,3 +155,12 @@ rfcreceptor2,fecha2,rfc2,etc2
 ...
 ...
 ```
+
+```bash
+$ python renamecfd.py -U -v TORR711730TE5FA0000009253.xml 
+TORR711730TE5FA0000009253.xml => _2014-09-11_195302_OCC911023NT7_A_9253_145.69_23.31_169.00_ingreso_3.2_E7F30F1C-5E41-4D44-B751-971746C3BDAE_.xml
+$
+```
+Renombra el archivo indicado, pero con la opción -U agrega al final
+del nombre del archivo el UUID obtenido por el timbrado.
+
