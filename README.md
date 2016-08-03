@@ -1,20 +1,10 @@
 RENAMECFD - Renombra archivos de CFD/CFDI
 ------------------------------------
-Autor: *Ricardo Torres*
-email: *[rictor@cuhrt.com](mailto:rictor@cuhrt.com)*
-blog: *[http://rctorr.wordpress.com](http://rctorr.wordpress.com)*
-twitter: *[@rctorr](http://www.twitter.com/rctorr)*
-
-Autor: *@pixelead0*
-email: *[adangq@gmail.com](mailto:adangq@gmail.com)*
-blog: *[http://pixelead0.blogspot.com](http://pixelead0.blogspot.com)*
-twitter: *[@pixelead0](http://www.twitter.com/pixelead0)*
-
-
 
 ### Descripción
 Este script lee un CFD/CFDI con nombre archivo.xml para después renombrarlo
 de la siguiente manera:
+
 	_RFCReceptor_Fecha_RFCemisor_serie_folio_subtotal_iva_total_descuento_tipoComprobante_version_UUID.xml
 
 Donde:
@@ -36,7 +26,7 @@ Donde:
 
  12-08-2015 (@rctorr)
  - Agregando campo del UUID por solicitud de usuarios
- 
+
  17-07-2014 (@pixelead0)
  - FIXED:
    - Se arregla el IVA, en algunos XML el atributo 'totalImpuestosTrasladados' está vacío.
@@ -60,17 +50,17 @@ Donde:
  - Se modifica para que pueda ser utilizado en batch y haceptar comodines
    en el nombre de archivo
 
- Ver 1.1
+ Ver 0.1.1
  - Se corrige problema con los tags para cfdi
 
- Ver 1.0
+ Ver 0.1.0
  - Se lee el nombre del archivo desde la línea de comando
  - Se leer los atributos del archivo xml
  - Genera el nombre con la sintaxis solicitada
  - Renombra el archivo xml al nuevo nombre
 
 
-### FEATURES
+### Descripción y uso
 
 El nombre del xml se proporciona desde la línea de comandos, de tal forma que
 se puede usar en algún otro script para automatizar el proceso.
@@ -160,10 +150,9 @@ rfcreceptor2,fecha2,rfc2,etc2
 ```
 
 ```bash
-$ python renamecfd.py -U -v TORR711730TE5FA0000009253.xml 
+$ python renamecfd.py -U -v TORR711730TE5FA0000009253.xml
 TORR711730TE5FA0000009253.xml => _2014-09-11_195302_OCC911023NT7_A_9253_145.69_23.31_169.00_ingreso_3.2_E7F30F1C-5E41-4D44-B751-971746C3BDAE_.xml
 $
 ```
 Renombra el archivo indicado, pero con la opción -U agrega al final
 del nombre del archivo el UUID obtenido por el timbrado.
-

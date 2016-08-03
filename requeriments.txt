@@ -1,0 +1,2 @@
+cx-Freeze==4.3.4
+wsgiref==0.1.2
